@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Why Dots — Product Benchmarking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #FFFFFF;
+      --surface-subtle: #F9F9F9;
+      --border: #E5E7EB;
+      --border-md: #D1D5DB;
+      --text: #0D0D0D;
+      --text2: #6B7280;
+      --text3: #9CA3AF;
+      --accent: #22C55E;
+      --accent-bg: #DCFCE7;
+      --accent-text: #16A34A;
+      --radius: 12px;
+      --radius-lg: 16px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ── */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 32px;
+      border-bottom: 0.5px solid var(--border);
+      width: 100%;
+      position: sticky; top: 0; background: var(--bg); z-index: 10;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 8px; }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-links a { font-size: 13px; color: #666; cursor: pointer; text-decoration: none; }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── LAYOUT ── */
+    .inner { max-width: 1060px; margin: 0 auto; padding: 0 32px; }
+    section { padding: 72px 0; border-bottom: 0.5px solid var(--border); }
+    .section-surface { background: var(--surface-subtle); border-bottom: 0.5px solid var(--border); padding: 72px 0; }
+
+    /* ── TYPOGRAPHY ── */
+    h1 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 50px; font-weight: 800;
+      letter-spacing: -0.8px; line-height: 1.1; margin-bottom: 20px; color: var(--text);
+    }
+    h2 {
+      font-size: 30px; font-weight: 700; line-height: 1.2;
+      letter-spacing: -0.4px; margin-bottom: 8px; color: var(--text);
+    }
+    .section-eyebrow {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text3); margin-bottom: 12px;
+    }
+    .section-sub {
+      font-size: 15px; color: var(--text2); line-height: 1.65;
+      max-width: 560px; margin-bottom: 40px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      width: 100%; padding: 72px 0 80px;
+      border-bottom: 0.5px solid var(--border);
+      position: relative; overflow: hidden;
+      background: #fff;
+    }
+    .hero-blob-teal {
+      position: absolute; top: -80px; left: 50%;
+      transform: translateX(-50%);
+      width: 800px; height: 520px;
+      background: radial-gradient(ellipse at center, rgba(129,210,199,0.24) 0%, rgba(167,220,214,0.12) 50%, rgba(255,255,255,0) 70%);
+      pointer-events: none; z-index: 0;
+    }
+    .hero-blob-pink {
+      position: absolute; bottom: -60px; left: 50%;
+      transform: translateX(-50%);
+      width: 800px; height: 500px;
+      background: radial-gradient(ellipse at center, rgba(224,189,200,0.22) 0%, rgba(232,205,212,0.1) 50%, rgba(255,255,255,0) 70%);
+      pointer-events: none; z-index: 0;
+    }
+    .hero .inner { position: relative; z-index: 1; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; border: 0.5px solid var(--border-md);
+      border-radius: 999px; padding: 4px 14px; color: var(--text2);
+      margin-bottom: 28px; background: rgba(255,255,255,0.75);
+    }
+    .hero-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+    .hero p.subtitle {
+      font-size: 18px; color: var(--text2); line-height: 1.6;
+      max-width: 500px; margin: 0 auto 36px;
+    }
+    .hero-ctas { display: flex; gap: 12px; justify-content: center; }
+    .btn-primary {
+      background: var(--text); color: #fff; font-size: 14px; font-weight: 600;
+      padding: 11px 26px; border-radius: 8px; cursor: pointer;
+      text-decoration: none; display: inline-block;
+    }
+    .btn-secondary {
+      background: transparent; color: var(--text); font-size: 14px; font-weight: 500;
+      padding: 11px 26px; border-radius: 8px; cursor: pointer; text-decoration: none;
+      display: inline-block; border: 0.5px solid var(--border-md);
+    }
+
+    /* ── CATEGORY MAP ── */
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-top: 40px;
+    }
+    .category-card {
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 18px;
+      background: var(--bg);
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .category-card-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-bottom: 2px;
+    }
+    .category-card-icon svg { width: 17px; height: 17px; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .category-card h3 { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; }
+    .category-card .examples { font-size: 11px; color: var(--text3); margin-bottom: 6px; }
+    .category-card-divider { height: 0.5px; background: var(--border); }
+    .category-do {
+      font-size: 12px; color: #16A34A; font-weight: 500;
+      display: flex; align-items: flex-start; gap: 5px; line-height: 1.4;
+    }
+    .category-gap {
+      font-size: 12px; color: #B45309; font-weight: 500;
+      display: flex; align-items: flex-start; gap: 5px; line-height: 1.4;
+    }
+    .category-do::before { content: "✓"; flex-shrink: 0; margin-top: 1px; }
+    .category-gap::before { content: "✕"; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── CAPABILITY MATRIX ── */
+    .matrix-wrap {
+      overflow-x: auto;
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      margin-top: 40px;
+    }
+    .matrix-table {
+      width: 100%; border-collapse: collapse; min-width: 780px;
+    }
+    .matrix-table thead tr {
+      border-bottom: 0.5px solid var(--border);
+    }
+    .matrix-table thead th {
+      padding: 14px 16px;
+      font-size: 12px; font-weight: 600; color: var(--text2);
+      text-align: center; white-space: nowrap;
+    }
+    .matrix-table thead th:first-child { text-align: left; }
+    .matrix-table thead .th-dots {
+      background: var(--accent-bg);
+      color: var(--accent-text);
+    }
+    .matrix-table tbody tr {
+      border-bottom: 0.5px solid var(--border);
+    }
+    .matrix-table tbody tr:last-child { border-bottom: none; }
+    .matrix-table tbody tr:nth-child(even) { background: var(--surface-subtle); }
+    .matrix-table tbody td {
+      padding: 12px 16px;
+      font-size: 13px; color: var(--text2);
+      text-align: center; white-space: nowrap;
+    }
+    .matrix-table tbody td:first-child {
+      text-align: left; font-weight: 500; color: var(--text);
+    }
+    .matrix-table tbody .td-dots {
+      background: rgba(220,252,231,0.35);
+    }
+    .pill {
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 600; padding: 3px 10px;
+      border-radius: 999px; white-space: nowrap;
+    }
+    .pill-yes  { background: #DCFCE7; color: #15803d; }
+    .pill-partial { background: #FEF3C7; color: #92400E; }
+    .pill-no   { background: #F3F4F6; color: #9CA3AF; }
+
+    /* ── POSITIONING — REDESIGNED ── */
+    .pos-section { padding: 72px 0; border-bottom: 0.5px solid var(--border); }
+
+    .pos-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 40px;
+    }
+
+    /* Each row = one competitor comparison */
+    .pos-row {
+      display: grid;
+      grid-template-columns: 200px 1fr 28px 1fr;
+      align-items: stretch;
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    /* Left label column */
+    .pos-label-col {
+      background: var(--surface-subtle);
+      border-right: 0.5px solid var(--border);
+      padding: 28px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 8px;
+    }
+    .pos-competitor-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .pos-verdict {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: #F3F4F6;
+      color: var(--text3);
+      border-radius: 4px;
+      padding: 2px 7px;
+      width: fit-content;
+    }
+
+    /* "They" side */
+    .pos-they {
+      padding: 28px 24px;
+      border-right: 0.5px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Arrow divider column */
+    .pos-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      flex-shrink: 0;
+    }
+    .pos-arrow svg {
+      width: 14px; height: 14px;
+      stroke: var(--text3); fill: none;
+      stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* "Dots" side */
+    .pos-dots {
+      padding: 28px 24px;
+      background: rgba(220, 252, 231, 0.18);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .pos-side-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 2px;
+    }
+    .pos-dots .pos-side-label {
+      color: var(--accent-text);
+    }
+
+    .pos-one-liner {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text2);
+      line-height: 1.3;
+      font-style: normal;
+    }
+    .pos-dots .pos-one-liner {
+      color: var(--text);
+    }
+
+    .pos-items {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin: 0; padding: 0;
+    }
+    .pos-items li {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.45;
+      padding-left: 16px;
+      position: relative;
+    }
+    .pos-items li::before {
+      content: "–";
+      position: absolute;
+      left: 0;
+      color: var(--text3);
+    }
+    .pos-dots .pos-items li {
+      color: var(--text);
+    }
+    .pos-dots .pos-items li::before {
+      content: "→";
+      color: var(--accent-text);
+      font-weight: 700;
+    }
+
+    /* ── DECISION SECTION ── */
+    .decision-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-top: 40px;
+      align-items: stretch;
+    }
+    .decision-col {
+      display: flex;
+      flex-direction: column;
+    }
+    .decision-col:first-child { border-right: 0.5px solid var(--border); }
+    /* Neutral left col has two sub-blocks split by a divider */
+    .decision-sub {
+      padding: 28px 28px;
+      flex: 1;
+    }
+    .decision-sub + .decision-sub {
+      border-top: 0.5px solid var(--border);
+    }
+    /* Dots right col: single block, vertically centred */
+    .decision-col.accent {
+      background: var(--accent-bg);
+      padding: 32px 28px;
+      justify-content: center;
+    }
+    .decision-col-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 18px;
+    }
+    .decision-col-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .decision-col-icon svg { width: 16px; height: 16px; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .decision-col-title { font-size: 13px; font-weight: 600; color: var(--text2); }
+    .decision-col.accent .decision-col-title { font-size: 14px; color: #15803d; }
+    .decision-list { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+    .decision-list li {
+      font-size: 13px; line-height: 1.5;
+      padding-left: 20px; position: relative;
+    }
+    .decision-list li::before { position: absolute; left: 0; font-weight: 500; }
+    .decision-col.neutral .decision-list li { color: var(--text2); }
+    .decision-col.neutral .decision-list li::before { content: "○"; color: var(--text3); }
+    .decision-col.accent .decision-list li { color: #166534; }
+    .decision-col.accent .decision-list li::before { content: "●"; color: var(--accent-text); }
+
+    /* ── SCENARIOS SECTION ── */
+    .scenarios-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      align-items: stretch;
+      gap: 16px;
+      margin-top: 40px;
+    }
+    .scenario-card {
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    .scenario-card-header {
+      padding: 12px 20px;
+      font-size: 12px; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      border-bottom: 0.5px solid var(--border);
+      flex-shrink: 0;
+    }
+    .scenario-card-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .scenario-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+      padding-bottom: 16px;
+    }
+    .scenario-input-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--text3); margin-bottom: 4px;
+    }
+    .scenario-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; color: var(--text2);
+      background: var(--surface-subtle);
+      border: 0.5px solid var(--border);
+      border-radius: 4px; padding: 3px 8px;
+      width: fit-content;
+    }
+    .scenario-output {
+      border-top: 0.5px solid var(--border);
+      padding-top: 16px;
+      min-height: 95px;
+      flex-shrink: 0;
+    }
+    .scenario-output-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--accent-text); margin-bottom: 6px;
+    }
+    .scenario-outcome {
+      font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.4;
+    }
+
+    /* ── CTA ── */
+    .cta-section {
+      text-align: center; padding: 80px 32px;
+      background: var(--surface-subtle);
+      color: var(--text);
+      border-bottom: 0.5px solid var(--border);
+    }
+    .cta-section h2 { font-size: 30px; max-width: 600px; margin: 0 auto 12px; }
+    .cta-section .tagline { font-size: 16px; color: var(--text2); margin-bottom: 32px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 860px) {
+      .category-grid { grid-template-columns: repeat(3, 1fr); }
+      .pos-row { grid-template-columns: 1fr; }
+      .pos-label-col { border-right: none; border-bottom: 0.5px solid var(--border); flex-direction: row; align-items: center; gap: 12px; }
+      .pos-arrow { display: none; }
+      .pos-they { border-right: none; border-bottom: 0.5px solid var(--border); }
+      h1 { font-size: 36px; }
+      h2 { font-size: 24px; }
+      .scenarios-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      nav { padding: 12px 16px; }
+      .inner { padding: 0 16px; }
+      h1 { font-size: 30px; }
+      .hero p.subtitle { font-size: 15px; }
+      .category-grid { grid-template-columns: repeat(2, 1fr); }
+      .decision-grid { grid-template-columns: 1fr; }
+      .decision-col:first-child { border-right: none; border-bottom: 0.5px solid var(--border); }
+      .decision-sub + .decision-sub { border-top: 0.5px solid var(--border); }
+      section, .section-surface, .pos-section { padding: 52px 0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <a href="https://getdots.in" target="_blank" rel="noopener noreferrer">
+      <img src="https://framerusercontent.com/images/uB1AWiA6HkyTs5iUu7VSs7YdsfA.png?scale-down-to=512&width=1549&height=640" alt="Dots" style="height:28px;width:auto;display:block;" />
+    </a>
+  </div>
+  <div class="nav-links">
+    <a href="https://getdots.in/contact">Book a demo</a>
+  </div>
+</nav>
+
+<!-- 1. HERO -->
+<div class="hero">
+  <div class="hero-blob-teal"></div>
+  <div class="hero-blob-pink"></div>
+  <div class="inner">
+    <div class="hero-badge"><span class="hero-badge-dot"></span>Product benchmarking</div>
+    <h1>No single tool does<br>what Dots does.</h1>
+    <p class="subtitle">Every competitor solves one part of the workflow. Dots is the only mixed-methods command center built for how modern research teams actually operate.</p>
+    <div class="hero-ctas">
+      <a href="https://getdots.in/contact" class="btn-primary">Book a demo</a>
+      <a href="#matrix" class="btn-secondary">See the comparison</a>
+    </div>
+  </div>
+</div>
+
+<!-- 2. CATEGORY MAP -->
+<section>
+  <div class="inner">
+    <p class="section-eyebrow">The market landscape</p>
+    <h2>Every category solves one piece of the puzzle</h2>
+    <p class="section-sub">The tools your team already uses were built for a single job. None of them were built for the job you're actually doing.</p>
+
+    <div class="category-grid">
+
+      <div class="category-card">
+        <div class="category-card-icon" style="background:#E6F1FB;">
+          <svg viewBox="0 0 24 24" style="stroke:#185FA5;"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 17h7M17.5 14v7"/></svg>
+        </div>
+        <h3>BI &amp; Dashboard Tools</h3>
+        <div class="examples">Power BI · Tableau</div>
+        <div class="category-card-divider"></div>
+        <div class="category-do">Quantitative reporting, KPIs, dashboards</div>
+        <div class="category-gap">Qualitative analysis, narratives, field insights</div>
+      </div>
+
+      <div class="category-card">
+        <div class="category-card-icon" style="background:#E1F5EE;">
+          <svg viewBox="0 0 24 24" style="stroke:#0F6E56;"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        </div>
+        <h3>Survey &amp; Data Collection</h3>
+        <div class="examples">Dimagi · Kobo · ODK · SurveyCTO</div>
+        <div class="category-card-divider"></div>
+        <div class="category-do">Data collection at scale</div>
+        <div class="category-gap">Cross-project analysis and synthesis</div>
+      </div>
+
+      <div class="category-card">
+        <div class="category-card-icon" style="background:#FBEAF0;">
+          <svg viewBox="0 0 24 24" style="stroke:#993556;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <h3>Qualitative Analysis</h3>
+        <div class="examples">NVivo · MAXQDA</div>
+        <div class="category-card-divider"></div>
+        <div class="category-do">Deep coding and research analysis</div>
+        <div class="category-gap">Operational workflows, collaboration, live data</div>
+      </div>
+
+      <div class="category-card">
+        <div class="category-card-icon" style="background:#FAEEDA;">
+          <svg viewBox="0 0 24 24" style="stroke:#854F0B;"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+        </div>
+        <h3>Research Repositories</h3>
+        <div class="examples">Dovetail · Condens</div>
+        <div class="category-card-divider"></div>
+        <div class="category-do">Organizing UX research</div>
+        <div class="category-gap">Mixed methods, portfolio-level visibility</div>
+      </div>
+
+      <div class="category-card">
+        <div class="category-card-icon" style="background:#F1EFE8;">
+          <svg viewBox="0 0 24 24" style="stroke:#5F5E5A;"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+        </div>
+        <h3>Spreadsheets &amp; Slides</h3>
+        <div class="examples">Excel · Google Sheets · PowerPoint</div>
+        <div class="category-card-divider"></div>
+        <div class="category-do">Flexible and familiar</div>
+        <div class="category-gap">Break down at scale</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- 3. CAPABILITY MATRIX -->
+<div class="section-surface" id="matrix">
+  <div class="inner">
+    <p class="section-eyebrow">Capability comparison</p>
+    <h2>Where each tool actually stands</h2>
+    <p class="section-sub">A full capability breakdown across every platform. Dots is the only tool that scores "Yes" across the board.</p>
+
+    <div class="matrix-wrap">
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th style="width:200px;">Capability</th>
+            <th class="th-dots">Dots</th>
+            <th>NVivo</th>
+            <th>MAXQDA</th>
+            <th>Dovetail</th>
+            <th>Condens</th>
+            <th>Power BI</th>
+            <th>Dimagi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Qualitative analysis</td>
+            <td class="td-dots"><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-no">No</span></td>
+            <td><span class="pill pill-partial">Partial</span></td>
+          </tr>
+          <tr>
+            <td>Quantitative analysis</td>
+            <td class="td-dots"><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-partial">Partial</span></td>
+            <td><span class="pill pill-partial">Partial</span></td>
+            <td><span class="pill pill-no">No</span></td>
+            <td><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-partial">Partial</span></td>
+          </tr>
+          <tr>
+            <td>Mixed-methods workflows</td>
+            <td class="td-dots"><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-no">No</span></td>
+            <td><span class="pill pill-no">No</span></td>
+            <td><span class="pill pill-no">No</span></td>
+            <td><span class="pill pill-partial">Partial</span></td>
+          </tr>
+          <tr>
+            <td>AI-assisted analysis</td>
+            <td class="td-dots"><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-partial">Partial</span></td>
+            <td><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-partial">Partial</span></td>
+            <td><span class="pill pill-partial">Partial</span></td>
+          </tr>
+          <tr>
+            <td>PM / program workflows</td>
+            <td class="td-dots"><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-no">No</span></td>
+            <td><span class="pill pill-no">No</span></td>
+            <td><span class="pill pill-partial">Partial</span></td>
+            <td><span class="pill pill-partial">Partial</span></td>
+            <td><span class="pill pill-no">No</span></td>
+            <td><span class="pill pill-partial">Partial</span></td>
+          </tr>
+          <tr>
+            <td>Executive reporting</td>
+            <td class="td-dots"><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-no">No</span></td>
+            <td><span class="pill pill-no">No</span></td>
+            <td><span class="pill pill-no">No</span></td>
+            <td><span class="pill pill-no">No</span></td>
+            <td><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-partial">Partial</span></td>
+          </tr>
+          <tr>
+            <td>Data collection</td>
+            <td class="td-dots"><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-no">No</span></td>
+            <td><span class="pill pill-no">No</span></td>
+            <td><span class="pill pill-no">No</span></td>
+            <td><span class="pill pill-no">No</span></td>
+            <td><span class="pill pill-no">No</span></td>
+            <td><span class="pill pill-yes">Yes</span></td>
+          </tr>
+          <tr>
+            <td>Team collaboration</td>
+            <td class="td-dots"><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-partial">Partial</span></td>
+            <td><span class="pill pill-partial">Partial</span></td>
+            <td><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-yes">Yes</span></td>
+          </tr>
+          <tr>
+            <td>Large-scale datasets</td>
+            <td class="td-dots"><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-partial">Partial</span></td>
+            <td><span class="pill pill-partial">Partial</span></td>
+            <td><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-partial">Partial</span></td>
+            <td><span class="pill pill-yes">Yes</span></td>
+            <td><span class="pill pill-partial">Partial</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="display:flex;gap:20px;margin-top:16px;flex-wrap:wrap;">
+      <span style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);"><span class="pill pill-yes">Yes</span> Fully supported</span>
+      <span style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);"><span class="pill pill-partial">Partial</span> Limited or in some capacity</span>
+      <span style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);"><span class="pill pill-no">No</span> Not supported</span>
+    </div>
+  </div>
+</div>
+
+<!-- 4. POSITIONING — REDESIGNED -->
+<div class="pos-section">
+  <div class="inner">
+    <p class="section-eyebrow">How Dots positions</p>
+    <h2>Not a replacement. A different category.</h2>
+    <p class="section-sub">These tools do their jobs well. Dots does a different job — one that didn't have a dedicated platform until now.</p>
+
+    <div class="pos-stack">
+
+      <!-- NVivo / MAXQDA -->
+      <div class="pos-row">
+        <div class="pos-label-col">
+          <div class="pos-competitor-name">NVivo &amp;<br>MAXQDA</div>
+          <span class="pos-verdict">Qualitative analysis</span>
+        </div>
+        <div class="pos-they">
+          <div class="pos-side-label">They're built for</div>
+          <div class="pos-one-liner">Helping researchers analyze a study.</div>
+          <ul class="pos-items">
+            <li>Academic research</li>
+            <li>Manual coding</li>
+            <li>Methodologically rigorous analysis</li>
+            <li>Single-study workflows</li>
+          </ul>
+        </div>
+        <div class="pos-arrow">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="pos-dots">
+          <div class="pos-side-label">Dots is built for</div>
+          <div class="pos-one-liner">Helping organizations manage and learn from multiple studies.</div>
+          <ul class="pos-items">
+            <li>Continuous data streams</li>
+            <li>Cross-project visibility</li>
+            <li>AI-assisted synthesis</li>
+            <li>PM and program management workflows</li>
+            <li>Executive reporting</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Power BI -->
+      <div class="pos-row">
+        <div class="pos-label-col">
+          <div class="pos-competitor-name">Power BI</div>
+          <span class="pos-verdict">BI &amp; dashboards</span>
+        </div>
+        <div class="pos-they">
+          <div class="pos-side-label">Power BI tells you</div>
+          <div class="pos-one-liner">What happened.</div>
+          <ul class="pos-items">
+            <li>Metrics and dashboards</li>
+            <li>KPIs</li>
+            <li>Business reporting</li>
+          </ul>
+        </div>
+        <div class="pos-arrow">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="pos-dots">
+          <div class="pos-side-label">Dots explains</div>
+          <div class="pos-one-liner">Why it happened.</div>
+          <ul class="pos-items">
+            <li>Handles narrative and qualitative data</li>
+            <li>Connects stories with metrics</li>
+            <li>Supports mixed methods</li>
+            <li>Provides evidence behind trends</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Dovetail / Condens -->
+      <div class="pos-row">
+        <div class="pos-label-col">
+          <div class="pos-competitor-name">Dovetail &amp;<br>Condens</div>
+          <span class="pos-verdict">Research repos</span>
+        </div>
+        <div class="pos-they">
+          <div class="pos-side-label">They're built for</div>
+          <div class="pos-one-liner">Organizing research.</div>
+          <ul class="pos-items">
+            <li>UX research repositories</li>
+            <li>Customer interviews</li>
+            <li>Research team collaboration</li>
+          </ul>
+        </div>
+        <div class="pos-arrow">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="pos-dots">
+          <div class="pos-side-label">Dots does</div>
+          <div class="pos-one-liner">Operationalizing insights across organizations.</div>
+          <ul class="pos-items">
+            <li>Multi-project visibility</li>
+            <li>Program and portfolio management</li>
+            <li>Mixed methods analysis</li>
+            <li>Cross-functional reporting</li>
+            <li>NGO and social impact workflows</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Dimagi -->
+      <div class="pos-row">
+        <div class="pos-label-col">
+          <div class="pos-competitor-name">Dimagi</div>
+          <span class="pos-verdict">Data collection</span>
+        </div>
+        <div class="pos-they">
+          <div class="pos-side-label">Dimagi helps you</div>
+          <div class="pos-one-liner">Collect data.</div>
+          <ul class="pos-items">
+            <li>Mobile data collection</li>
+            <li>Field operations</li>
+            <li>Monitoring &amp; evaluation workflows</li>
+          </ul>
+        </div>
+        <div class="pos-arrow">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="pos-dots">
+          <div class="pos-side-label">Dots helps you</div>
+          <div class="pos-one-liner">Understand and act on it.</div>
+          <ul class="pos-items">
+            <li>Analysis-first platform</li>
+            <li>AI synthesis</li>
+            <li>Cross-project learning</li>
+            <li>Executive reporting</li>
+            <li>Insight generation</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- 5. SCENARIOS WHERE DOTS EXCELS -->
+<section>
+  <div class="inner">
+    <p class="section-eyebrow">Scenarios where Dots excels</p>
+    <h2>One platform, three kinds of teams</h2>
+    <p class="section-sub">Whatever your data looks like, Dots brings it into a single system built for analysis, synthesis, and action.</p>
+
+    <div class="scenarios-grid">
+
+      <div class="scenario-card">
+        <div class="scenario-card-header" style="background:#E1F5EE; color:#0F6E56;">Multi-country NGO programs</div>
+        <div class="scenario-card-body">
+          <div class="scenario-inputs">
+            <div class="scenario-input-label">Data coming in</div>
+            <span class="scenario-tag">📋 Surveys</span>
+            <span class="scenario-tag">🎙 Interviews</span>
+            <span class="scenario-tag">📝 Field observations</span>
+            <span class="scenario-tag">📖 Case stories</span>
+          </div>
+          <div class="scenario-output">
+            <div class="scenario-output-label">Dots delivers</div>
+            <div class="scenario-outcome">Unified in one system — comparable across geographies and program cycles.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="scenario-card">
+        <div class="scenario-card-header" style="background:#E6F1FB; color:#185FA5;">Product organisations</div>
+        <div class="scenario-card-body">
+          <div class="scenario-inputs">
+            <div class="scenario-input-label">Data coming in</div>
+            <span class="scenario-tag">🎫 Support tickets</span>
+            <span class="scenario-tag">🎙 User interviews</span>
+            <span class="scenario-tag">📊 NPS feedback</span>
+            <span class="scenario-tag">📈 Product analytics</span>
+          </div>
+          <div class="scenario-output">
+            <div class="scenario-output-label">Dots delivers</div>
+            <div class="scenario-outcome">Combined into a single insight layer — so every team sees the full picture.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="scenario-card">
+        <div class="scenario-card-header" style="background:#FAEEDA; color:#854F0B;">Research organisations</div>
+        <div class="scenario-card-body">
+          <div class="scenario-inputs">
+            <div class="scenario-input-label">Data coming in</div>
+            <span class="scenario-tag">🗂 Multiple clients</span>
+            <span class="scenario-tag">📁 Multiple projects</span>
+            <span class="scenario-tag">🔀 Different methodologies</span>
+          </div>
+          <div class="scenario-output">
+            <div class="scenario-output-label">Dots delivers</div>
+            <div class="scenario-outcome">Standardized and comparable across portfolios — without losing methodological nuance.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- 6. DECISION HELPER -->
+<div class="section-surface">
+  <div class="inner">
+    <p class="section-eyebrow">Is Dots right for you?</p>
+    <h2>When simpler tools are enough — and when they're not</h2>
+    <p class="section-sub">Not every team needs Dots. Here's how to know.</p>
+
+    <div class="decision-grid">
+      <!-- Left: two sub-blocks from PDF -->
+      <div class="decision-col neutral">
+        <div class="decision-sub">
+          <div class="decision-col-header">
+            <div class="decision-col-icon" style="background:#F3F4F6;">
+              <svg viewBox="0 0 24 24" style="stroke:#6B7280;"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+            </div>
+            <div class="decision-col-title">A dashboard is enough if…</div>
+          </div>
+          <ul class="decision-list">
+            <li>You only track KPIs</li>
+            <li>Most data is quantitative</li>
+            <li>Your team already knows why trends are happening</li>
+          </ul>
+        </div>
+        <div class="decision-sub">
+          <div class="decision-col-header">
+            <div class="decision-col-icon" style="background:#F3F4F6;">
+              <svg viewBox="0 0 24 24" style="stroke:#6B7280;"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+            </div>
+            <div class="decision-col-title">A research repository is enough if…</div>
+          </div>
+          <ul class="decision-list">
+            <li>You run occasional studies</li>
+            <li>Only one team consumes the findings</li>
+            <li>Insights do not need ongoing monitoring</li>
+          </ul>
+        </div>
+      </div>
+      <!-- Right: Dots column -->
+      <div class="decision-col accent">
+        <div class="decision-col-header">
+          <div class="decision-col-icon" style="background:rgba(255,255,255,0.6);">
+            <svg viewBox="0 0 24 24" style="stroke:#16A34A;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="decision-col-title">Dots becomes essential when…</div>
+        </div>
+        <ul class="decision-list">
+          <li>You work across 2+ datasets or data sources</li>
+          <li>You operate across countries or regions</li>
+          <li>You collect both qualitative and quantitative data</li>
+          <li>Insights need to be available at every team level</li>
+          <li>Reporting is repetitive and time-consuming</li>
+          <li>Leadership wants evidence behind every metric</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 7. CTA -->
+<div class="cta-section">
+  <div class="inner">
+    <h2>The command center for mixed-methods data.</h2>
+    <p class="tagline">Built for the work no other tool was designed for.</p>
+    <a href="https://getdots.in/contact" class="btn-primary" style="font-size:14px;padding:12px 28px;">Book a demo</a>
+  </div>
+</div>
+
+</body>
+</html>
