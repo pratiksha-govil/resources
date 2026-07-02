@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Data Connection Patterns — Dots</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #FFFFFF;
+    --surface-subtle: #F9F9F9;
+    --border: #E5E7EB;
+    --border-md: #D1D5DB;
+    --text: #0D0D0D;
+    --text2: #6B7280;
+    --text3: #9CA3AF;
+    --accent: #22C55E;
+    --accent-bg: #DCFCE7;
+    --accent-text: #16A34A;
+    --radius: 12px;
+    --radius-lg: 16px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04);
+
+    /* pattern palette — same rotation used in the four-step section */
+    --iso-bg: #F3F4F6;   --iso-text: #4B5563;
+    --float-bg:#E4EEFB;  --float-text:#1D4E89;
+    --hub-bg:  #D8F2EE;  --hub-text:  #0F6E56;
+    --chain-bg:#FAE8CC;  --chain-text:#854F0B;
+  }
+
+  body {
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Nav */
+  nav {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 32px; border-bottom:0.5px solid var(--border);
+    width:100%; position:sticky; top:0; background:var(--bg); z-index:10;
+  }
+  .nav-logo { display:flex; align-items:center; gap:8px; }
+  .nav-links { display:flex; gap:28px; align-items:center; }
+  .nav-links a { font-size:13px; color:#666; cursor:pointer; text-decoration:none; }
+  .nav-links a:hover { color:var(--text); }
+  @media (max-width:640px){ .nav-links{ display:none; } }
+
+  section { padding:64px 0; border-bottom:0.5px solid var(--border); }
+  .inner { max-width:1060px; margin:0 auto; padding:0 32px; }
+
+  h1 { font-family:'DM Sans', sans-serif; color:var(--text); font-size:40px; font-weight:800; letter-spacing:-0.8px; line-height:1.15; margin-bottom:16px; }
+  h2 { font-size:28px; font-weight:400; line-height:1.25; margin-bottom:12px; }
+  .subtitle { font-size:15px; color:var(--text2); line-height:1.6; max-width:520px; margin:0 auto 28px; text-align:center; }
+  .section-intro { font-size:15px; color:var(--text2); max-width:620px; margin-bottom:32px; line-height:1.6; }
+
+  /* Hero */
+  .hero { text-align:center; background:#fff; width:100%; padding:56px 0 64px; border-bottom:0.5px solid var(--border); position:relative; overflow:hidden; }
+  .hero-blob-blue { position:absolute; top:-80px; left:50%; transform:translateX(-50%); width:700px; height:500px;
+    background:radial-gradient(ellipse at center, rgba(129,210,199,0.28) 0%, rgba(167,220,214,0.15) 45%, rgba(255,255,255,0) 70%); pointer-events:none; z-index:0; }
+  .hero-blob-pink { position:absolute; bottom:-60px; left:50%; transform:translateX(-50%); width:800px; height:500px;
+    background:radial-gradient(ellipse at center, rgba(224,189,200,0.28) 0%, rgba(232,205,212,0.15) 45%, rgba(255,255,255,0) 70%); pointer-events:none; z-index:0; }
+  .hero .inner { position:relative; z-index:1; }
+  .hero h1 { color:var(--text); font-size:50px; max-width:16ch; margin-left:auto; margin-right:auto; }
+  .hero .subtitle { color:var(--text2); font-size:19px; max-width:620px; }
+  .hero-badge { display:inline-flex; align-items:center; gap:6px; font-size:12px; border:0.5px solid var(--border-md);
+    border-radius:999px; padding:4px 14px; color:var(--text2); margin-bottom:24px; background:rgba(255,255,255,0.7); }
+  .hero-badge-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); flex-shrink:0; }
+  .btn-hero-primary { background:var(--text); color:#fff; font-size:14px; padding:11px 24px; border-radius:8px; cursor:pointer; font-weight:600; display:inline-block; text-decoration:none; }
+
+  /* switcher card, reuses data-flow visual language */
+  .switcher { background:#fff; border:0.5px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-md); overflow:hidden; text-align:left; margin-top:8px; }
+  .switcher-tabs { display:flex; flex-wrap:wrap; border-bottom:0.5px solid var(--border); }
+  .switcher-tabs button {
+    flex:1; min-width:130px; font-family:'DM Sans', sans-serif; font-size:13px; font-weight:500;
+    background:transparent; border:none; border-right:0.5px solid var(--border);
+    padding:13px 10px; cursor:pointer; color:var(--text2);
+    display:flex; align-items:center; justify-content:center; gap:8px; transition:background .15s ease, color .15s ease;
+  }
+  .switcher-tabs button:last-child{ border-right:none; }
+  .switcher-tabs button .sw{ width:8px; height:8px; border-radius:50%; flex:none; }
+  .switcher-tabs button.active{ background:var(--surface-subtle); color:var(--text); }
+  .switcher-stage{ height:270px; }
+  .switcher-stage svg{ width:100%; height:100%; display:block; }
+  .switcher-caption{ padding:16px 24px 22px; border-top:0.5px solid var(--border); font-size:13.5px; color:var(--text2); min-height:20px; }
+  #swCard .pattern-card{ border:none; border-radius:0; margin-bottom:0; box-shadow:none; }
+  .node text{ font-family:'DM Sans', sans-serif; font-size:10.5px; font-weight:500; fill:var(--text); }
+  .node circle, .edge{ transition: all .5s cubic-bezier(.65,0,.35,1); }
+
+  /* data tag pills (source list) */
+  .data-flow { background:#fff; border:0.5px solid var(--border); border-radius:var(--radius-lg); padding:24px; }
+  .data-flow-row { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+  .data-tag { display:flex; align-items:center; gap:6px; border:0.5px solid var(--border-md); border-radius:999px; padding:5px 12px; font-size:12px; background:var(--surface-subtle); color:#333; }
+  .data-tag-icon { width:12px; height:12px; background:#ccc; border-radius:2px; flex-shrink:0; }
+
+  /* combo (In practice) uses the same divider pattern as the reference */
+  .data-divider { display:flex; align-items:center; gap:12px; margin:18px 0; }
+  .data-divider-line { flex:1; height:0.5px; background:var(--border-md); }
+  .data-divider-dot { color:#fff; font-size:13px; font-weight:500; padding:6px 18px; border-radius:999px; font-family:'DM Sans', sans-serif; white-space:nowrap; }
+  .output-row { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+  .output-tag { border:0.5px solid var(--border-md); border-radius:999px; padding:5px 14px; font-size:12px; font-weight:500; }
+
+  /* pattern cards — persona-card, enlarged */
+  .pattern-card { border:0.5px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; background:var(--bg); margin-bottom:20px; }
+  .pattern-card-header { display:flex; align-items:center; justify-content:space-between; padding:16px 24px; font-size:14px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; }
+  .pattern-card-header .pnum { font-family:'DM Sans', sans-serif; font-weight:500; font-size:12px; text-transform:none; letter-spacing:0; opacity:0.75; }
+  .pattern-card-body { padding:26px; display:grid; grid-template-columns:340px 1fr; gap:30px; align-items:center; }
+  @media (max-width:760px){ .pattern-card-body{ grid-template-columns:1fr; } }
+  .pattern-diagram { border-radius:var(--radius); height:210px; display:flex; align-items:center; justify-content:center; }
+  .pattern-diagram svg{ width:100%; height:100%; }
+  .pattern-card h3 { font-size:19px; font-weight:700; margin-bottom:8px; letter-spacing:-0.2px; }
+  .pattern-card .desc { font-size:14px; color:var(--text2); line-height:1.65; margin-bottom:16px; }
+  .kv { display:grid; grid-template-columns:auto 1fr; gap:5px 12px; font-size:13.5px; }
+  .kv dt { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text3); padding-top:2px; white-space:nowrap; }
+  .kv dd { margin:0 0 10px 0; color:var(--text2); line-height:1.5; }
+
+  /* comparison table */
+  .table-card { background:#fff; border:0.5px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow); }
+  .table-scroll{ overflow-x:auto; }
+  table.compare { width:100%; border-collapse:collapse; min-width:660px; font-size:13.5px; }
+  table.compare th, table.compare td { padding:15px 20px; text-align:left; vertical-align:top; border-bottom:0.5px solid var(--border); }
+  table.compare th { font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text3); font-weight:700; background:var(--surface-subtle); }
+  table.compare tr:last-child td{ border-bottom:none; }
+  table.compare td:first-child{ font-weight:700; white-space:nowrap; }
+  table.compare td{ color:var(--text2); }
+  table.compare td:first-child{ color:var(--text); }
+  table.compare .swatch{ display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:8px; }
+
+  /* sector tabs + grid */
+  .sector-tabs { display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap; }
+  .sector-tabs button { font-family:'DM Sans', sans-serif; font-size:13px; font-weight:500; background:#fff; border:0.5px solid var(--border-md); border-radius:999px; padding:8px 18px; cursor:pointer; color:var(--text2); }
+  .sector-tabs button.active { background:var(--text); color:#fff; border-color:var(--text); }
+  .sector-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  @media (max-width:860px){ .sector-grid{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:500px){ .sector-grid{ grid-template-columns:1fr; } }
+  .sector-card { border:0.5px solid var(--border); border-radius:var(--radius); padding:18px; background:#fff; font-size:13.5px; box-shadow:var(--shadow); }
+  .sector-card .tagpill { display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; padding:4px 10px; border-radius:999px; margin-bottom:12px; }
+  .sector-card p { margin:0; color:var(--text2); line-height:1.55; }
+
+  .combo-title { font-size:15px; font-weight:700; margin-bottom:2px; }
+  .combo-sub { font-size:13px; color:var(--text3); margin-bottom:0; }
+
+  /* CTA */
+  .cta-section { text-align:center; padding:80px 32px; background:var(--surface-subtle); color:var(--text); max-width:100%; border-bottom:none; }
+  .cta-section h2 { color:var(--text); font-size:28px; max-width:640px; margin:0 auto 12px; }
+  .cta-section .tagline { font-size:16px; color:var(--text2); margin-bottom:32px; }
+
+  .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+  @media (max-width:640px){ .grid-2{ grid-template-columns:1fr; } .inner{ padding:0 16px; } nav{ padding:12px 16px; } .hero h1{ font-size:32px; } .hero .subtitle{ font-size:16px; } .pattern-card-body{ padding:20px; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <a href="https://getdots.in" target="_blank" rel="noopener noreferrer" style="display:inline-block;">
+      <img src="https://framerusercontent.com/images/uB1AWiA6HkyTs5iUu7VSs7YdsfA.png?scale-down-to=512&width=1549&height=640" alt="Dots" style="height:28px;width:auto;display:block;"/>
+    </a>
+  </div>
+  <div class="nav-links">
+    <a href="#patterns">Patterns</a>
+    <a href="#examples">By sector</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-blob-blue"></div>
+  <div class="hero-blob-pink"></div>
+  <div class="inner">
+    <div class="hero-badge"><span class="hero-badge-dot"></span>Knowledge resource</div>
+    <h1>How should your datasets relate to each other?</h1>
+    <p class="subtitle">Most organisations don't have one dataset — they have surveys, interviews, field reports, CRM records, support tickets, and more. Dots supports four ways to connect them.</p>
+  </div>
+</div>
+
+<div class="how-section" style="background:var(--surface-subtle);">
+  <div class="inner" style="padding-top:64px;padding-bottom:64px;">
+    <h2>Why connect datasets at all</h2>
+    <p class="section-intro">Every organisation collects information from more places than it realises. On their own, each source is useful. Connected well, they start to explain each other.</p>
+    <div class="data-flow">
+      <div class="data-flow-row">
+        <div class="data-tag"><div class="data-tag-icon"></div> Surveys</div>
+        <div class="data-tag"><div class="data-tag-icon"></div> Interviews</div>
+        <div class="data-tag"><div class="data-tag-icon"></div> Observations</div>
+        <div class="data-tag"><div class="data-tag-icon"></div> Field reports</div>
+        <div class="data-tag"><div class="data-tag-icon"></div> CRM data</div>
+        <div class="data-tag"><div class="data-tag-icon"></div> Product analytics</div>
+        <div class="data-tag"><div class="data-tag-icon"></div> Support tickets</div>
+        <div class="data-tag"><div class="data-tag-icon"></div> Volunteer stories</div>
+        <div class="data-tag"><div class="data-tag-icon"></div> Monitoring data</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section id="patterns">
+  <div class="inner">
+    <h2>Four connection patterns</h2>
+    <p class="section-intro">Each pattern trades off differently between simplicity and analytical power. Most organisations end up combining more than one — see "In practice" below.</p>
+
+    <div class="switcher">
+      <div class="switcher-tabs" id="swTabs"></div>
+      <div id="swCard"></div>
+    </div>
+
+  </div>
+</section>
+
+<section id="examples">
+  <div class="inner">
+    <h2>How this plays out by sector</h2>
+    <p class="section-intro">Pick a sector to see the four patterns in that context — and how our clients there usually combine more than one.</p>
+    <div class="sector-tabs" id="sectorTabs"></div>
+    <div class="sector-grid" id="sectorGrid"></div>
+
+    <p class="combo-title" style="margin-top:32px;margin-bottom:14px;">In practice</p>
+    <div class="data-flow" id="sectorCombo"></div>
+  </div>
+</section>
+
+<div class="cta-section">
+  <div class="inner">
+    <h2>Not sure which pattern fits your data?</h2>
+    <p class="tagline">Tell us how your datasets currently relate to each other and we'll help you map the right structure in Dots.</p>
+    <a href="https://getdots.in/contact" class="btn-hero-primary">Talk to us</a>
+  </div>
+</div>
+
+<script>
+const W = 460, H = 280;
+const patterns = {
+  isolated: { color:'var(--iso-text)', label:'Isolated', caption:'No links between datasets. Each stands completely on its own.',
+    nodes:[ {id:'A',x:110,y:70,label:'Dataset A'}, {id:'B',x:320,y:70,label:'Dataset B'}, {id:'C',x:215,y:200,label:'Dataset C'} ], edges:[] },
+  floating: { color:'var(--float-text)', label:'Floating tags', caption:'Datasets stay separate but connect indirectly through shared tags.',
+    nodes:[ {id:'A',x:110,y:70,label:'Dataset A'}, {id:'B',x:320,y:70,label:'Dataset B'}, {id:'C',x:215,y:200,label:'Dataset C'}, {id:'T',x:215,y:130,label:'shared tags',small:true} ],
+    edges:[ ['A','T',true], ['B','T',true], ['C','T',true] ] },
+  hub: { color:'var(--hub-text)', label:'Hub-and-spoke', caption:'A central register is the source of truth; every dataset links back to it.',
+    nodes:[ {id:'R',x:215,y:60,label:'Register',hub:true}, {id:'A',x:100,y:200,label:'Dataset A'}, {id:'B',x:215,y:230,label:'Dataset B'}, {id:'C',x:330,y:200,label:'Dataset C'} ],
+    edges:[ ['R','A'], ['R','B'], ['R','C'] ] },
+  chain: { color:'var(--chain-text)', label:'Daisy chain', caption:'Datasets connect sequentially — each one builds on the last.',
+    nodes:[ {id:'R',x:60,y:145,label:'Register'}, {id:'A',x:180,y:145,label:'Dataset A'}, {id:'B',x:300,y:145,label:'Dataset B'}, {id:'C',x:420,y:145,label:'Dataset C'} ],
+    edges:[ ['R','A'], ['A','B'], ['B','C'] ] }
+};
+const order = ['isolated','floating','hub','chain'];
+
+function resolveVar(v){
+  return getComputedStyle(document.documentElement).getPropertyValue(v.replace('var(','').replace(')','')).trim();
+}
+
+function buildSVG(key){
+  const p = patterns[key];
+  const color = resolveVar(p.color);
+  let edgesSvg = p.edges.map(([from,to,dashed])=>{
+    const a = p.nodes.find(n=>n.id===from), b = p.nodes.find(n=>n.id===to);
+    return `<path class="edge" d="M${a.x},${a.y} L${b.x},${b.y}" stroke="${color}" stroke-width="1.4" ${dashed?'stroke-dasharray="3,4"':''} fill="none" opacity="0.7"/>`;
+  }).join('');
+  let nodesSvg = p.nodes.map(n=>{
+    const r = n.hub ? 9 : (n.small ? 5 : 7);
+    const fill = n.small ? color : color;
+    return `<g class="node">
+      <circle cx="${n.x}" cy="${n.y}" r="${r}" fill="${fill}" fill-opacity="${n.small?0.55:1}" stroke="white" stroke-width="2"/>
+      <text x="${n.x}" y="${n.y + r + 15}" text-anchor="middle">${n.label}</text>
+    </g>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${edgesSvg}${nodesSvg}</svg>`;
+}
+
+const content = {
+  isolated: { title:'Each dataset stands alone', desc:'No links, no shared structure, no roll-up analysis. Every dataset is its own island.',
+    kv:[ ['Best when','Studies are unrelated, different teams own different data, or historical projects need to stay independently preserved.'],
+         ['Gets easier','Clean separation of projects, independent reporting, less overall complexity.'],
+         ['Gets harder','Cross-project analysis, shared reporting, standardised metrics or themes.'] ] },
+  floating: { title:'Linked by shared tags, not by record', desc:'Datasets stay separate but share common dimensions — geography, gender, programme, theme — connecting indirectly through those tags rather than to each other.',
+    kv:[ ['Best when','You want comparison across sources without forcing them into one structure. Often the first step toward connected analysis.'],
+         ['Gets easier','Filtering across datasets, cross-source theme analysis, comparing qualitative and quantitative findings.'],
+         ['Gets harder','Record-level linking, journey tracking, following one entity across datasets.'] ] },
+  hub: { title:'A central register everything connects back to', desc:'One dataset — a register of beneficiaries, schools, facilities, or accounts — acts as the source of truth. Every other dataset links back to it.',
+    kv:[ ['Best when',"There's one clear entity shared across all your datasets. The most common pattern for long-running programmes."],
+         ['Gets easier','Roll-up reporting, consistent filters, shared metadata, stronger governance, less duplication.'],
+         ['Gets harder','Maintaining the central register itself, and managing changes to its structure over time.'] ] },
+  chain: { title:'Each dataset builds on the one before it', desc:'Datasets connect sequentially, following a process or journey — one stage feeding directly into the next.',
+    kv:[ ['Best when','Understanding progression matters more than understanding any single dataset on its own.'],
+         ['Gets easier','Tracing outcomes across stages, following progression over time, connecting cause and effect.'],
+         ['Gets harder','Managing dependencies between stages, and handling missing links in the chain.'] ] }
+};
+const bgVarMap = { isolated:'--iso-bg', floating:'--float-bg', hub:'--hub-bg', chain:'--chain-bg' };
+const textVarMap = { isolated:'--iso-text', floating:'--float-text', hub:'--hub-text', chain:'--chain-text' };
+
+const swTabs = document.getElementById('swTabs');
+const swCard = document.getElementById('swCard');
+
+order.forEach(key=>{
+  const p = patterns[key];
+  const btn = document.createElement('button');
+  btn.innerHTML = `<span class="sw" style="background:${p.color}"></span>${p.label}`;
+  btn.dataset.key = key;
+  btn.addEventListener('click', ()=> { setSwitcher(key); autoIdx = order.indexOf(key); });
+  swTabs.appendChild(btn);
+});
+
+function setSwitcher(key){
+  [...swTabs.children].forEach(b=> b.classList.toggle('active', b.dataset.key===key));
+  const p = patterns[key];
+  const c = content[key];
+  const num = String(order.indexOf(key)+1).padStart(2,'0');
+  swCard.innerHTML = `
+    <div class="pattern-card">
+      <div class="pattern-card-header" style="background:var(${bgVarMap[key]}); color:var(${textVarMap[key]});">
+        <span>${p.label}</span><span class="pnum">${num} / 04</span>
+      </div>
+      <div class="pattern-card-body">
+        <div class="pattern-diagram" style="background:var(${bgVarMap[key]});" id="patternDiagram"></div>
+        <div>
+          <h3>${c.title}</h3>
+          <p class="desc">${c.desc}</p>
+          <dl class="kv">
+            ${c.kv.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('')}
+          </dl>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('patternDiagram').innerHTML = buildSVG(key);
+}
+setSwitcher('isolated');
+let autoIdx = 0;
+setInterval(()=>{ autoIdx = (autoIdx+1) % order.length; setSwitcher(order[autoIdx]); }, 4200);
+
+const sectors = {
+  MEL: { isolated:'Independent baseline studies run separately across countries.', floating:'Surveys, interviews and case studies all tagged by district and programme.', hub:'A school register connected to surveys, observations and interviews.', chain:'Outreach → Participation → Outcomes → Impact.' },
+  Research: { isolated:'Separate evaluations commissioned independently by different funders.', floating:'Multiple studies unified by the same thematic coding framework.', hub:'A facility register connected to monitoring and feedback systems.', chain:'Screening → Interviews → Follow-up interviews.' },
+  Product: { isolated:'Different customer research projects run independently by separate teams.', floating:'App reviews, support tickets and interview transcripts tagged by shared themes.', hub:'A customer account connected to support tickets, interviews and usage data.', chain:'Acquisition → Activation → Engagement → Retention.' }
+};
+
+const combos = {
+  MEL: { flow:'Programme Register → Surveys · Interviews · Observations', primaryKey:'hub', primaryLabel:'Hub-and-spoke',
+    extras:[ {key:'floating', label:'+ Floating tags: shared themes & geographies'} ] },
+  Product: { flow:'Customer Register → Usage Data · Support Tickets &nbsp;/&nbsp; Acquisition → Activation → Retention', primaryKey:'hub', primaryLabel:'Hub-and-spoke',
+    extras:[ {key:'chain', label:'+ Daisy chain'}, {key:'floating', label:'+ Floating tags: onboarding, trust, pricing'} ] },
+  Research: { flow:'Independent studies, unified only by a shared thematic framework', primaryKey:'isolated', primaryLabel:'Isolated studies',
+    extras:[ {key:'floating', label:'+ Floating thematic framework across all projects'} ] }
+};
+
+const sectorTabs = document.getElementById('sectorTabs');
+const sectorGrid = document.getElementById('sectorGrid');
+const sectorCombo = document.getElementById('sectorCombo');
+
+Object.keys(sectors).forEach(name=>{
+  const btn = document.createElement('button');
+  btn.textContent = name;
+  btn.dataset.name = name;
+  btn.addEventListener('click', ()=> setSector(name));
+  sectorTabs.appendChild(btn);
+});
+
+function setSector(name){
+  [...sectorTabs.children].forEach(b=> b.classList.toggle('active', b.dataset.name===name));
+
+  const data = sectors[name];
+  sectorGrid.innerHTML = order.map(key=>{
+    const p = patterns[key];
+    return `<div class="sector-card">
+      <span class="tagpill" style="background:var(${bgVarMap[key]}); color:var(${textVarMap[key]});">${p.label}</span>
+      <p>${data[key]}</p>
+    </div>`;
+  }).join('');
+
+  const c = combos[name];
+  sectorCombo.innerHTML = `
+    <p class="combo-sub" style="margin-bottom:16px;">${c.flow}</p>
+    <div class="data-divider">
+      <div class="data-divider-line"></div>
+      <div class="data-divider-dot" style="background:var(${textVarMap[c.primaryKey]});">${c.primaryLabel}</div>
+      <div class="data-divider-line"></div>
+    </div>
+    <div class="output-row">
+      ${c.extras.map(e=>`<div class="output-tag" style="background:var(${bgVarMap[e.key]}); border-color:var(${textVarMap[e.key]}); color:var(${textVarMap[e.key]});">${e.label}</div>`).join('')}
+    </div>`;
+}
+setSector('MEL');
+</script>
+
+</body>
+</html>
