@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Data Connection Patterns — Dots</title>
+<title>Data Connectors in Dots</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 
@@ -176,15 +176,15 @@
   <div class="hero-blob-pink"></div>
   <div class="inner">
     <div class="hero-badge"><span class="hero-badge-dot"></span>Knowledge resource</div>
-    <h1>How should your datasets relate to each other?</h1>
-    <p class="subtitle">Most organisations don't have one dataset — they have surveys, interviews, field reports, CRM records, support tickets, and more. Dots supports four ways to connect them.</p>
+    <h1>Connecting Datasets using Dots</h1>
+    <p class="subtitle">Most organisations have multiple datasets. Here's how Dots provides four ways to connect them.</p>
   </div>
 </div>
 
 <div class="how-section" style="background:var(--surface-subtle);">
   <div class="inner" style="padding-top:64px;padding-bottom:64px;">
     <h2>Why connect datasets at all</h2>
-    <p class="section-intro">Every organisation collects information from more places than it realises. On their own, each source is useful. Connected well, they start to explain each other.</p>
+    <p class="section-intro">Every organisation collects information from multiple places. On their own, each source is useful. But connected well, they start to explain each other.</p>
     <div class="data-flow">
       <div class="data-flow-row">
         <div class="data-tag"><div class="data-tag-icon"></div> Surveys</div>
@@ -203,8 +203,8 @@
 
 <section id="patterns">
   <div class="inner">
-    <h2>Four connection patterns</h2>
-    <p class="section-intro">Each pattern trades off differently between simplicity and analytical power. Most organisations end up combining more than one — see "In practice" below.</p>
+    <h2>Four data connection patterns</h2>
+    <p class="section-intro">Each pattern trades off differently between simplicity and analytical power. <br> Most organisations end up combining more than one</p>
 
     <div class="switcher">
       <div class="switcher-tabs" id="swTabs"></div>
@@ -274,22 +274,22 @@ function buildSVG(key){
 }
 
 const content = {
-  isolated: { title:'Each dataset stands alone', desc:'No links, no shared structure, no roll-up analysis. Every dataset is its own island.',
+  isolated: { title:'Each dataset exists independently', desc:'No links, no shared structure, no roll-up analysis.',
     kv:[ ['Best when','Studies are unrelated, different teams own different data, or historical projects need to stay independently preserved.'],
          ['Gets easier','Clean separation of projects, independent reporting, less overall complexity.'],
-         ['Gets harder','Cross-project analysis, shared reporting, standardised metrics or themes.'] ] },
-  floating: { title:'Linked by shared tags, not by record', desc:'Datasets stay separate but share common dimensions — geography, gender, programme, theme — connecting indirectly through those tags rather than to each other.',
-    kv:[ ['Best when','You want comparison across sources without forcing them into one structure. Often the first step toward connected analysis.'],
-         ['Gets easier','Filtering across datasets, cross-source theme analysis, comparing qualitative and quantitative findings.'],
-         ['Gets harder','Record-level linking, journey tracking, following one entity across datasets.'] ] },
-  hub: { title:'A central register everything connects back to', desc:'One dataset — a register of beneficiaries, schools, facilities, or accounts — acts as the source of truth. Every other dataset links back to it.',
+         ['Gets difficult','Cross-project analysis, shared reporting, standardised metrics or themes.'] ] },
+  floating: { title:'Datasets are linked by shared tags', desc:'Datasets stay separate but share common dimensions — geography, gender, programme, theme — connecting indirectly through those tags rather than to each other.',
+    kv:[ ['Best when','You want comparison across sources without forcing them into one structure.'],
+         ['Gets easier','Comparing datasets using common filters, analyzing themes across multiple sources, creating cross-study dashboards, comparing qualitative and quantitative findings.'], 
+         ['Gets difficult','Record-level linking, journey tracking, following one entity across datasets.'] ] },
+  hub: { title:'A central register everything connects back to', desc:'One dataset - Beneficiaries, schools, health facilities, volunteers, customers, accounts- acts as the source of truth. Every other dataset links back to it.',
     kv:[ ['Best when',"There's one clear entity shared across all your datasets. The most common pattern for long-running programmes."],
          ['Gets easier','Roll-up reporting, consistent filters, shared metadata, stronger governance, less duplication.'],
-         ['Gets harder','Maintaining the central register itself, and managing changes to its structure over time.'] ] },
-  chain: { title:'Each dataset builds on the one before it', desc:'Datasets connect sequentially, following a process or journey — one stage feeding directly into the next.',
-    kv:[ ['Best when','Understanding progression matters more than understanding any single dataset on its own.'],
+         ['Gets difficult','Maintaining the central register itself, managing changes to its structure over time.'] ] },
+  chain: { title:'Datasets connect sequentially', desc:'Each dataset builds upon information from the previous one.',
+    kv:[ ['Best when','Data follows a process, workflow or journey.'],
          ['Gets easier','Tracing outcomes across stages, following progression over time, connecting cause and effect.'],
-         ['Gets harder','Managing dependencies between stages, and handling missing links in the chain.'] ] }
+         ['Gets difficult','Managing dependencies between stages, handling missing links in the chain.'] ] }
 };
 const bgVarMap = { isolated:'--iso-bg', floating:'--float-bg', hub:'--hub-bg', chain:'--chain-bg' };
 const textVarMap = { isolated:'--iso-text', floating:'--float-text', hub:'--hub-text', chain:'--chain-text' };
